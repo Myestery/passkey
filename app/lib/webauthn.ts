@@ -21,8 +21,8 @@ import prisma from "./prisma";
 
 dotenv.config();
 const rpName = "My Passkey App";
-const rpID = process.env.RP_ID;
-const origin = process.env.APP_URL;
+const rpID = process.env.RP_ID as string;
+const origin = process.env.APP_URL as string;
 
 async function getUser(username: string) {
   const user = await prisma.user.findUnique({ where: { username } });
@@ -108,9 +108,7 @@ export async function generateAuthenticationOptionsEx(
     rpID,
     allowCredentials: [
       {
-        id: authenticator.credentialID,
-        // type: 'public-key',
-        // transports: authenticator.transports,
+        id: authenticator.credentialID as unknown as string,
       },
     ],
     userVerification: "preferred",
