@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# WebAuthn Passkey System with Ed25519
 
-## Getting Started
+This project implements a passkey system using the WebAuthn API with Ed25519 key pairs. It allows users to authenticate their Ed25519 key pair without revealing it, demonstrating both registration and authentication processes.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- WebAuthn-based passkey system
+- Ed25519 key pair support
+- User registration and authentication
+- Next.js for frontend and backend
+- Postgres database with Prisma ORM
+- Vercel Postgres compatibility
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Prerequisites
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Node.js (v14 or later)
+- npm
+- A Postgres database (e.g., Vercel Postgres)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Setup
 
-## Learn More
+1. Clone the repository:
+   ```
+   git clone https://github.com/myestery/nillion-passkey.git
+   cd nillion-passkey
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Set up your environment variables:
+   Create a `.env` file in the root directory and add your Postgres connection string:
+   ```
+   DATABASE_URL="postgres://your-connection-string-here"
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+4. Initialize Prisma and generate the client:
+   ```
+   npx prisma generate
+   npx prisma db push
+   ```
 
-## Deploy on Vercel
+5. Run the development server:
+   ```
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Deployment
+
+This project is set up for easy deployment on Vercel:
+
+1. Push your code to a GitHub repository.
+2. Create a new project on Vercel and link it to your GitHub repository.
+3. In the Vercel project settings, add your `DATABASE_URL` as an environment variable.
+4. Deploy the project.
+
+## Trust Model
+
+In this implementation, the trusted parties are:
+
+1. The Authenticator: This is the device or platform (e.g., built-in fingerprint sensor, security key) that securely stores the private key and performs cryptographic operations.
+
+2. The User's Device (Browser): The browser acts as an intermediary between the authenticator and the server, implementing the WebAuthn API.
+
+The server and the application itself are not considered trusted parties. They never have access to the private key, which remains securely stored in the authenticator. The server only stores and verifies the public key data.
+
+Key security aspects:
+
+- The private key never leaves the authenticator.
+- The server only receives and stores public key data.
+- Cryptographic challenges ensure the authenticity of each authentication attempt.
+- The WebAuthn protocol provides protection against phishing and man-in-the-middle attacks.
+
+## How It Works
+
+1. Registration:
+   - The server generates registration options, including a challenge.
+   - The client (browser) requests the authenticator to create a new key pair.
+   - The authenticator generates the key pair and returns the public key and other metadata.
+   - The server verifies the registration response and stores the public key.
+
+2. Authentication:
+   - The server generates authentication options, including a challenge.
+   - The client requests the authenticator to sign the challenge with the private key.
+   - The authenticator performs the signing operation.
+   - The server verifies the signature using the stored public key.
+
+Throughout this process, the private key never leaves the authenticator, ensuring its security.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License.
